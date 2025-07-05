@@ -1,6 +1,10 @@
 version: 0.2
 env:
   privilegedMode: true
+  variables:
+    AWS_REGION: "ap-southeast-2"
+    AWS_APPLICATION_NAME: "Lab17-App"
+    AWS_DEPLOYMENT_GROUP_NAME: "Lab17-DeploymentGroup"
 phases:
   pre_build:
     commands:
