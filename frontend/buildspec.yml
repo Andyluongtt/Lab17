@@ -2,6 +2,12 @@ version: 0.2
 env:
   privilegedMode: true
 phases:
+install:
+  commands:
+      - echo "Testing GitHub connectivity..."
+      - curl -v https://github.com
+      - timeout 5 telnet github.com 443
+      - nslookup github.com
   pre_build:
     commands:
       # Login to Amazon ECR
