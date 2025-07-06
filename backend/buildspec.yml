@@ -74,15 +74,6 @@ phases:
           }
         }')
       - printf '{"ImageURI":"%s"}' $IMAGE_URI > imageDetail.json
-      - echo "Environment variables:"
-      - echo "AWS_REGION: ${AWS_REGION}"
-      - echo "AWS_APPLICATION_NAME: ${AWS_APPLICATION_NAME}"
-      - echo "AWS_DEPLOYMENT_GROUP_NAME: ${AWS_DEPLOYMENT_GROUP_NAME}"
-      - echo "IMAGE_URI: ${IMAGE_URI}"
-      - echo "NEW_TASK_DEFINITION_ARN: $NEW_TASK_DEFINITION_ARN"
-      - echo "CONTAINER_NAME: $CONTAINER_NAME"
-      - echo "CONTAINER_PORT: $CONTAINER_PORT"
-      # Added 050725   
       # Create new deployment in CodeDeploy
       - aws deploy create-deployment --region ${AWS_REGION} --application-name ${AWS_APPLICATION_NAME} --deployment-group-name ${AWS_DEPLOYMENT_GROUP_NAME} --revision "$REVISION"
 
