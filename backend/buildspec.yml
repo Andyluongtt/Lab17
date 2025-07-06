@@ -12,9 +12,9 @@ phases:
     - export AWS_APPLICATION_NAME="Lab17-App"
     - export AWS_DEPLOYMENT_GROUP_NAME="Lab17-DeploymentGroup"
      # Debug: Check all environment variables
-    - echo "AWS_REGION: '${AWS_REGION}'"
-    - echo "AWS_APPLICATION_NAME: '${AWS_APPLICATION_NAME}'"
-    - echo "AWS_DEPLOYMENT_GROUP_NAME: '${AWS_DEPLOYMENT_GROUP_NAME}'"
+     # - echo "AWS_REGION: '${AWS_REGION}'"
+     # - echo "AWS_APPLICATION_NAME: '${AWS_APPLICATION_NAME}'"
+     # - echo "AWS_DEPLOYMENT_GROUP_NAME: '${AWS_DEPLOYMENT_GROUP_NAME}'"
       # Login to Amazon ECR
       - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com
       # Set the image tag using CodeBuild source version
