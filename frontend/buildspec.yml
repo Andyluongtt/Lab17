@@ -4,6 +4,7 @@ env:
 phases:
 install:
   commands:
+      - echo "nameserver 8.8.8.8" > /etc/resolv.conf
       - echo "Testing GitHub connectivity..."
       - curl -v https://github.com
       - timeout 5 telnet github.com 443
