@@ -12,7 +12,6 @@ phases:
     - export AWS_APPLICATION_NAME="Lab17-App"
     - export AWS_DEPLOYMENT_GROUP_NAME="Lab17-DeploymentGroup"
      # Debug: Check all environment variables
-    - echo "=== ENVIRONMENT VARIABLES DEBUG ==="
     - echo "AWS_REGION: '${AWS_REGION}'"
     - echo "AWS_APPLICATION_NAME: '${AWS_APPLICATION_NAME}'"
     - echo "AWS_DEPLOYMENT_GROUP_NAME: '${AWS_DEPLOYMENT_GROUP_NAME}'"
