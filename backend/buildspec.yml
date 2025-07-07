@@ -50,7 +50,7 @@ phases:
           aws ecs create-service \
             --cluster $CLUSTER_NAME \
             --service-name $SERVICE_NAME \
-            --task-definition $NEW_TASK_DEF_ARN \
+            --task-definition $TASK_FAMILY \
             --desired-count 1 \
             --launch-type FARGATE \
             --deployment-controller type=CODE_DEPLOY \
