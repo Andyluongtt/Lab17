@@ -1,62 +1,46 @@
+---
 version: 0.2
 env:
   privilegedMode: true
   variables:
-    AWS_REGION: "ap-southeast-2"
-    CLUSTER_NAME: "VPC2-Cluster-Lab17"
-    CI_PROJECT_FE_NAME: "frontend-image-lab17"
-    TASK_NAME_FE: "VPC2-Task-Frontend-Lab17-withDBinfo-06:2"
+    AWS_REGION: ap-southeast-2
+    CLUSTER_NAME: VPC2-Cluster-Lab17
+    CI_PROJECT_FE_NAME: frontend-image-lab17
+    TASK_NAME_FE: VPC2-Task-Frontend-Lab17-withDBinfo-06:2
 phases:
   pre_build:
     commands:
-      # Debugging: Print current user and group memberships
       - echo "Current user: $(whoami)"
       - echo "Groups: $(groups)"
-
-      # Try starting Docker Daemon more robustly
-      # Ensure the Docker group exists and user is in it (CodeBuild typically handles this for privilegedMode)
       - if ! getent group docker > /dev/null; then sudo groupadd docker; fi
       - sudo usermod -aG docker $(whoami)
-      - newgrp docker # Apply new group membership to current shell (important!)
-
-      # Explicitly remove old Docker socket if it exists (cleanup)
+      - newgrp docker
       - sudo rm -f /var/run/docker.sock
-
-      # Start the Docker daemon in the background with logging to a file
-      # Use a longer timeout for dockerd to start
       - echo "Starting Docker daemon..."
       - nohup dockerd > /tmp/dockerd.log 2>&1 &
-
-      # Wait for Docker daemon to be fully ready (increased timeout and more verbose check)
-      - timeout 60 sh -c 'until docker info &>/dev/null; do echo "Waiting for Docker daemon..."; sleep 2; done'
+      - timeout 60 sh -c 'until docker info &>/dev/null; do echo "Waiting for
+        Docker daemon..."; sleep 2; done'
       - echo "Docker daemon started successfully!"
-
-      # Debugging: Check Docker status after startup
       - docker info
       - docker ps -a
-
-      # Login to Amazon ECR
-      - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com
-      # Set the image tag using CodeBuild source version
+      - aws ecr get-login-password --region ${AWS_REGION} | docker login
+        --username AWS --password-stdin
+        ${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com
       - IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION}
-      # Set the full URI for the Docker image
       - IMAGE_URI=${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com/${CI_PROJECT_FE_NAME}:${IMAGE_TAG}
   build:
     commands:
-      # Navigate to frontend directory and build Docker image
       - cd frontend
       - docker build -f Dockerfile.prod -t ${IMAGE_URI} .
-
   post_build:
     commands:
-      # Push the Docker image to ECR
       - docker push ${IMAGE_URI}
-
-      # Get the current task definition from ECS
-      - TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${TASK_NAME_FE} --region ${AWS_REGION})
-
-      # Create new task definition with updated image
-      - NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "${IMAGE_URI}" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
-
-      # Register the new task definition
-      - aws ecs register-task-definition --region ${AWS_REGION} --cli-input-json "$NEW_TASK_DEFINITION"
+      - TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition
+        ${TASK_NAME_FE} --region ${AWS_REGION})
+      - NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE
+        "${IMAGE_URI}" '.taskDefinition | .containerDefinitions[0].image =
+        $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) |
+        del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) |
+        del(.registeredBy)')
+      - aws ecs register-task-definition --region ${AWS_REGION} --cli-input-json
+        "$NEW_TASK_DEFINITION"
