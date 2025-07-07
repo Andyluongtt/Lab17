@@ -8,7 +8,7 @@ env:
     SECURITY_GROUP_IDS: "sg-02b0bccf46eb34243"
     SUBNET_IDS: "subnet-05f594698be3b3d52"
     CLUSTER_NAME: "VPC2-Cluster-Lab17"
-    SERVICE_NAME: "Lab17-Service3"    
+    SERVICE_NAME: "Lab17-Service3"
     TASK_NAME_BE: "VPC2-Task-Backend-Lab17-03-withDBinfo-backendLab17-mapportv2:1"
     TASK_FAMILY: "VPC2-Task-Backend-Lab17-03-withDBinfo-backendLab17-mapportv2"
     ECR_IMAGE: "533267067091.dkr.ecr.ap-southeast-2.amazonaws.com/my-repo:latest"
@@ -17,32 +17,26 @@ env:
     TARGET_GROUP_ARN_1: "arn:aws:elasticloadbalancing:ap-southeast-2:533267067091:targetgroup/Targetgroup5000/e231e25a15b4b99f"
     TARGET_GROUP_ARN_2: "arn:aws:elasticloadbalancing:ap-southeast-2:533267067091:targetgroup/Targetgroup5003/536de1813cddcf50"
     CONTAINER_NAME: "backend"
-    CONTAINER_PORT_1: "5000" 
+    CONTAINER_PORT_1: "5000"
     CONTAINER_PORT_2: "5002"
- phases:
+phases:
   pre_build:
     commands:
       - export AWS_REGION="ap-southeast-2"
       - export AWS_APPLICATION_NAME="Lab17-App"
       - export AWS_DEPLOYMENT_GROUP_NAME="Lab17-DeploymentGroup"
-      # Debug: Check all environment variables
-      # - echo "AWS_REGION: '${AWS_REGION}'"
-      # - echo "AWS_APPLICATION_NAME: '${AWS_APPLICATION_NAME}'"
-      # - echo "AWS_DEPLOYMENT_GROUP_NAME: '${AWS_DEPLOYMENT_GROUP_NAME}'"
       # Login to Amazon ECR
       - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com
       # Set the image tag using CodeBuild source version
       - IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION}
       # Set the full URI for the Docker image
       - IMAGE_URI=${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_IMAGE}:${IMAGE_TAG}
-  
   build:
     commands:
-      
       # Navigate to backend directory and build Docker image
       - cd backend
       - docker build -f Dockerfile -t ${IMAGE_URI} .
-      
+
   post_build:
     commands:
       # Push the Docker image to ECR
@@ -79,7 +73,7 @@ env:
           # Validate JSON file
           jq . load_balancers.json || { echo "Invalid JSON in load_balancers.json"; exit 1; }
           # Debug: Log the JSON file
-          cat load_balancers.json 
+          cat load_balancers.json
           # Create new ECS service
           aws ecs create-service \
             --cluster $CLUSTER_NAME \
@@ -90,7 +84,7 @@ env:
             --deployment-controller type=CODE_DEPLOY \
             --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_IDS],securityGroups=[$SECURITY_GROUP_IDS],assignPublicIp=DISABLED}" \
             --region $AWS_REGION \
-            --load-balancers file://load_balancers.json         
+            --load-balancers file://load_balancers.json
           # Wait for service to stabilize
           aws ecs wait services-stable \
             --cluster $CLUSTER_NAME \
@@ -99,15 +93,15 @@ env:
         else
           echo "Service already exists, proceeding with deployment..."
         fi
-      
-      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --region $AWS_REGION --force-new-deployment  
-        
-      
+
+      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --region $AWS_REGION --force-new-deployment
+
+
       # Extract required information for AppSpec
       - AWS_TASK_DEFINITION_ARN=$(echo $TASK_DEFINITION | jq -r '.taskDefinition.taskDefinitionArn')
       - CONTAINER_NAME=$(echo $TASK_DEFINITION | jq -r '.taskDefinition.containerDefinitions[0].name')
       - CONTAINER_PORT=$(echo $TASK_DEFINITION | jq -r '.taskDefinition.containerDefinitions[0].portMappings[0].containerPort')
-      
+
       # Create AppSpec content for CodeDeploy Blue/Green deployment
       - |
         APP_SPEC=$(jq -n --arg taskDef "$AWS_TASK_DEFINITION_ARN" --arg containerName "$CONTAINER_NAME" --argjson containerPort "$CONTAINER_PORT" '{
@@ -127,7 +121,7 @@ env:
             }
           ]
         }')
-      
+
       # Create deployment revision with AppSpec content
       - |
         REVISION=$(jq -n --arg appSpec "$APP_SPEC" '{
