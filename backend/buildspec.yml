@@ -8,6 +8,8 @@ env:
     SERVICE_NAME: "Lab17-Service"    
     TASK_FAMILY: "VPC2-Task-Backend-Lab17-03-withDBinfo-backendLab17-ALB:2"
     ECR_IMAGE: "533267067091.dkr.ecr.ap-southeast-2.amazonaws.com/my-repo:latest"
+    EXECUTION_ROLE_ARN: "arn:aws:iam::533267067091:role/CodeDeployRole"
+    SERVICE_REGISTRY_ARN: "arn:aws:servicediscovery:ap-southeast-2:533267067091:namespace/ns-t2ma76i67zbci6gm"
 phases:
   pre_build:
     commands:
