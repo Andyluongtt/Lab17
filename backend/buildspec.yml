@@ -14,7 +14,8 @@ env:
     ECR_IMAGE: "533267067091.dkr.ecr.ap-southeast-2.amazonaws.com/my-repo:latest"
     EXECUTION_ROLE_ARN: "arn:aws:iam::533267067091:role/CodeDeployRole"
     SERVICE_REGISTRY_ARN: "arn:aws:servicediscovery:ap-southeast-2:533267067091:namespace/ns-t2ma76i67zbci6gm"
-    TARGET_GROUP_ARN: "arn:aws:elasticloadbalancing:ap-southeast-2:533267067091:targetgroup/Targetgroup5000/e231e25a15b4b99f"
+    TARGET_GROUP_ARN_1: "arn:aws:elasticloadbalancing:ap-southeast-2:533267067091:targetgroup/Targetgroup5000/e231e25a15b4b99f"
+    TARGET_GROUP_ARN_2: "arn:aws:elasticloadbalancing:ap-southeast-2:533267067091:targetgroup/Targetgroup5002/c314d88042b97e26"
     CONTAINER_NAME: "backend"
     CONTAINER_PORT: "5000" 
 phases:
@@ -66,7 +67,7 @@ phases:
             --deployment-controller type=CODE_DEPLOY \
             --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_IDS],securityGroups=[$SECURITY_GROUP_IDS],assignPublicIp=DISABLED}" \
             --region $AWS_REGION
-            --load-balancers "targetGroupArn=$TARGET_GROUP_ARN,containerName=$CONTAINER_NAME,containerPort=$CONTAINER_PORT"
+            --load-balancers "targetGroupArn=$TARGET_GROUP_ARN_1,containerName=$CONTAINER_NAME,containerPort=$CONTAINER_PORT_1 targetGroupArn=$TARGET_GROUP_ARN_2,containerName=$CONTAINER_NAME,containerPort=$CONTAINER_PORT" \
         
         # Wait for service to stabilize
           aws ecs wait services-stable \
