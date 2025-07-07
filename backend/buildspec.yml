@@ -58,7 +58,8 @@ phases:
         if ! aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --region $AWS_REGION --query 'services[?status==`ACTIVE`]' --output text | grep -q "ACTIVE"; then
           echo "Service does not exist, creating new service..."
           # Create JSON file for load balancers using jq to avoid heredoc issues
-          - jq -n --arg tg1 "$TARGET_GROUP_ARN_1" --arg tg2 "$TARGET_GROUP_ARN_2" --arg cn "$CONTAINER_NAME" --argjson cp1 "$CONTAINER_PORT_1" --argjson cp2 "$CONTAINER_PORT_2" '[
+          jq -n --arg tg1 "$TARGET_GROUP_ARN_1" --arg tg2 "$TARGET_GROUP_ARN_2" --arg cn "$CONTAINER_NAME" --argjson cp1 "$CONTAINER_PORT_1" --argjson cp2 "$CONTAINER_PORT_2" 
+          '[
             {
               "targetGroupArn": $tg1,
               "containerName": $cn,
