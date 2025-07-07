@@ -6,6 +6,7 @@ env:
     AWS_APPLICATION_NAME: "Lab17-App"
     AWS_DEPLOYMENT_GROUP_NAME: "Lab17-DeploymentGroup"
     SERVICE_NAME: "Lab17-Service"    
+    TASK_FAMILY: "VPC2-Task-Backend-Lab17-03-withDBinfo-backendLab17-ALB:2"
 phases:
   pre_build:
     commands:
