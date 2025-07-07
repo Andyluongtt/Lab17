@@ -7,6 +7,7 @@ env:
     AWS_DEPLOYMENT_GROUP_NAME: "Lab17-DeploymentGroup"
     SERVICE_NAME: "Lab17-Service"    
     TASK_FAMILY: "VPC2-Task-Backend-Lab17-03-withDBinfo-backendLab17-ALB:2"
+    ECR_IMAGE: "533267067091.dkr.ecr.ap-southeast-2.amazonaws.com/my-repo:latest"
 phases:
   pre_build:
     commands:
@@ -26,10 +27,25 @@ phases:
   
   build:
     commands:
+      
       # Navigate to backend directory and build Docker image
       - cd backend
       - docker build -f Dockerfile -t ${IMAGE_URI} .
-      
+      - |
+        NEW_REVISION=$(aws ecs register-task-definition \
+          --family "$TASK_FAMILY" \
+          --network-mode awsvpc \
+          --requires-compatibilities FARGATE \
+          --cpu "256" \
+          --memory "512" \
+          --container-definitions "[{\"name\":\"backend\",\"image\":\"$ECR_IMAGE\",\"essential\":true}]" \
+          --execution-role-arn "$EXECUTION_ROLE_ARN" \
+          --region "$AWS_REGION" \
+          --query 'taskDefinition' --output json)
+        if [ -z "$NEW_REVISION" ]; then
+          echo "Error: Failed to register new task definition."
+          exit 1
+        fi    
   post_build:
     commands:
       # Push the Docker image to ECR
