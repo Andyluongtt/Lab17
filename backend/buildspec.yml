@@ -42,7 +42,7 @@ phases:
             --task-definition $TASK_FAMILY \
             --desired-count 1 \
             --launch-type FARGATE \
-            --network-configuration ""awsvpcConfiguration={subnets=[${SUBNET_IDS}],securityGroups=[${SECURITY_GROUP_IDS}],assignPublicIp=ENABLED}"\
+            --network-configuration "awsvpcConfiguration={subnets=[${SUBNET_IDS}],securityGroups=[${SECURITY_GROUP_IDS}],assignPublicIp=ENABLED}"\
             --region $AWS_REGION
           # Wait for service to be stable
           aws ecs wait services-stable --cluster $CLUSTER_NAME --services $SERVICE_NAME --region $AWS_REGION
