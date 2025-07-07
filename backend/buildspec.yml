@@ -55,7 +55,7 @@ phases:
       # Update service with new task definition
       - NEW_TASK_DEF_ARN=$(echo $NEW_REVISION | jq -r '.taskDefinition.taskDefinitionArn')
       - |
-        cat > load_balancers.json << 'EOF'
+        cat > load_balancers.json << EOF
         [
           {
             "targetGroupArn": "$TARGET_GROUP_ARN_1",
