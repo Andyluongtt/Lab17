@@ -45,6 +45,13 @@ phases:
     commands:
       # Push the Docker image to ECR
       - docker push ${IMAGE_URI}
+      # Get the current task definition from ECS
+      - TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${TASK_FAMILY} --region ${AWS_REGION})
+      # Create new task definition with updated image
+      - NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "${IMAGE_URI}" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
+      - NEW_REVISION=$(aws ecs register-task-definition --region ${AWS_REGION} --cli-input-json "$NEW_TASK_DEFINITION")
+      # Update service with new task definition
+      - NEW_TASK_DEF_ARN=$(echo $NEW_REVISION | jq -r '.taskDefinition.taskDefinitionArn')
       - |
         if ! aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --region $AWS_REGION --query 'services[?status==`ACTIVE`]' --output text | grep -q "ACTIVE"; then
           echo "Service does not exist, creating new service..."
@@ -69,16 +76,9 @@ phases:
         else
           echo "Service already exists, proceeding with deployment..."
         fi
-      # Get the current task definition from ECS
-      - TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${TASK_FAMILY} --region ${AWS_REGION})
-      # Create new task definition with updated image
-      - NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "${IMAGE_URI}" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
-      - NEW_REVISION=$(aws ecs register-task-definition --region ${AWS_REGION} --cli-input-json "$NEW_TASK_DEFINITION")
-      # Update service with new task definition
-      - NEW_TASK_DEF_ARN=$(echo $NEW_REVISION | jq -r '.taskDefinition.taskDefinitionArn')
+      
       - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --region $AWS_REGION --force-new-deployment  
-      
-      
+        
       
       # Extract required information for AppSpec
       - AWS_TASK_DEFINITION_ARN=$(echo $TASK_DEFINITION | jq -r '.taskDefinition.taskDefinitionArn')
