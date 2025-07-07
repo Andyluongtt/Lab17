@@ -2,7 +2,6 @@ version: 0.2
 env:
   privilegedMode: true
   AWS_REGION: "ap-southeast-2"
-  AWS_ACCOUNT_NUMBER: "533267067091"
   CLUSTER_NAME: "VPC2-Cluster-Lab17"
   CI_PROJECT_FE_NAME: "frontend-image-lab17"
   TASK_NAME_FE: "VPC2-Task-Frontend-Lab17-withDBinfo-06:2"
