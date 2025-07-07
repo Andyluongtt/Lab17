@@ -81,7 +81,7 @@ phases:
           # Debug: Log the JSON file
           cat load_balancers.json 
           # Create new ECS service
-      # Create new ECS service
+          # Create new ECS service
           aws ecs create-service \
             --cluster $CLUSTER_NAME \
             --service-name $SERVICE_NAME \
