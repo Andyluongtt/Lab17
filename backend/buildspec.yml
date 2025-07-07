@@ -34,7 +34,7 @@ env:
       # Set the image tag using CodeBuild source version
       - IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION}
       # Set the full URI for the Docker image
-      - IMAGE_URI=${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com/${CI_PROJECT_BE_NAME}:${IMAGE_TAG}
+      - IMAGE_URI=${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_IMAGE}:${IMAGE_TAG}
   
   build:
     commands:
