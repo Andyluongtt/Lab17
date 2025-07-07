@@ -68,8 +68,7 @@ phases:
             --deployment-controller type=CODE_DEPLOY \
             --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_IDS],securityGroups=[$SECURITY_GROUP_IDS],assignPublicIp=DISABLED}" \
             --region $AWS_REGION
-            --load-balancers '[{"targetGroupArn":"'"$TARGET_GROUP_ARN_1"'","containerName":"'"$CONTAINER_NAME"'","containerPort":'"$CONTAINER_PORT_1"'},{"targetGroupArn":"'"$TARGET_GROUP_ARN_2"'","containerName":"'"$CONTAINER_NAME"'","containerPort":'"$CONTAINER_PORT_2"'}]' \        
-        # Wait for service to stabilize
+            --load-balancers '[{"targetGroupArn":"'"$TARGET_GROUP_ARN_1"'","containerName":"'"$CONTAINER_NAME"'","containerPort":'"$CONTAINER_PORT_1"'},{"targetGroupArn":"'"$TARGET_GROUP_ARN_2"'","containerName":"'"$CONTAINER_NAME"'","containerPort":'"$CONTAINER_PORT_2"'}]' \        # Wait for service to stabilize
           aws ecs wait services-stable \
             --cluster $CLUSTER_NAME \
             --services $SERVICE_NAME \
