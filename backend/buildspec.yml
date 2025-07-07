@@ -42,35 +42,7 @@ phases:
     commands:
       # Push the Docker image to ECR
       - docker push ${IMAGE_URI}
-      - |
-        NEW_REVISION=$(aws ecs register-task-definition \
-          --family "$TASK_FAMILY" \
-          --network-mode awsvpc \
-          --requires-compatibilities FARGATE \
-          --cpu "256" \
-          --memory "512" \
-          --container-definitions "[{\"name\":\"backend\",\"image\":\"$ECR_IMAGE\",\"essential\":true}]" \
-          --execution-role-arn "$EXECUTION_ROLE_ARN" \
-          --region "$AWS_REGION" \
-          --query 'taskDefinition' --output json)
-        if [ -z "$NEW_REVISION" ]; then
-          echo "Error: Failed to register new task definition."
-          exit 1
-        fi    
-      - |
-        if ! aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --region $AWS_REGION --query 'services[?status==`ACTIVE`]' --output text | grep -q .; then
-          echo "Service doesn't exist. Creating..."
-          aws ecs create-service \
-            --cluster $CLUSTER_NAME \
-            --service-name $SERVICE_NAME \
-            --task-definition $TASK_FAMILY \
-            --desired-count 1 \
-            --launch-type FARGATE \
-            --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_IDS],securityGroups=[$SECURITY_GROUP_IDS],assignPublicIp=ENABLED}"\
-            --region $AWS_REGION
-          # Wait for service to be stable
-          aws ecs wait services-stable --cluster $CLUSTER_NAME --services $SERVICE_NAME --region $AWS_REGION
-        fi
+      
     # Update service with new task definition
       - NEW_TASK_DEF_ARN=$(echo $NEW_REVISION | jq -r '.taskDefinition.taskDefinitionArn')
       - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --region $AWS_REGION --force-new-deployment  
