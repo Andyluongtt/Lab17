@@ -1,14 +1,11 @@
 version: 0.2
 env:
   privilegedMode: true
+  AWS_REGION: "ap-southeast-2"
+  AWS_ACCOUNT_NUMBER: 533267067091
+  CLUSTER_NAME: "VPC2-Cluster-Lab17"
+  CI_PROJECT_FE_NAME: "frontend-image-lab17"
 phases:
-install:
-  commands:
-      - echo "nameserver 8.8.8.8" > /etc/resolv.conf
-      - echo "Testing GitHub connectivity..."
-      - curl -v https://github.com
-      - timeout 5 telnet github.com 443
-      - nslookup github.com
   pre_build:
     commands:
       # Login to Amazon ECR
@@ -17,7 +14,6 @@ install:
       - IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION}
       # Set the full URI for the Docker image
       - IMAGE_URI=${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com/${CI_PROJECT_FE_NAME}:${IMAGE_TAG}
-  
   build:
     commands:
       # Navigate to frontend directory and build Docker image
@@ -39,4 +35,4 @@ install:
       - aws ecs register-task-definition --region ${AWS_REGION} --cli-input-json "$NEW_TASK_DEFINITION"
       
       # Update the ECS service to use the new task definition
-      - aws ecs update-service --region ${AWS_REGION} --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME_FE} --task-definition ${TASK_NAME_FE} --force-new-deployment
+      #- aws ecs update-service --region ${AWS_REGION} --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME_FE} --task-definition ${TASK_NAME_FE} --force-new-deployment
