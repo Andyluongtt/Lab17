@@ -17,7 +17,8 @@ env:
     TARGET_GROUP_ARN_1: "arn:aws:elasticloadbalancing:ap-southeast-2:533267067091:targetgroup/Targetgroup5000/e231e25a15b4b99f"
     TARGET_GROUP_ARN_2: "arn:aws:elasticloadbalancing:ap-southeast-2:533267067091:targetgroup/Targetgroup5002/c314d88042b97e26"
     CONTAINER_NAME: "backend"
-    CONTAINER_PORT: "5000" 
+    CONTAINER_PORT_1: "5000" 
+    CONTAINER_PORT_2: "5002"
 phases:
   pre_build:
     commands:
@@ -67,7 +68,7 @@ phases:
             --deployment-controller type=CODE_DEPLOY \
             --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_IDS],securityGroups=[$SECURITY_GROUP_IDS],assignPublicIp=DISABLED}" \
             --region $AWS_REGION
-            --load-balancers '[{"targetGroupArn":"'"$TARGET_GROUP_ARN_1"'","containerName":"'"$CONTAINER_NAME"'","containerPort":'"$CONTAINER_PORT"'},{"targetGroupArn":"'"$TARGET_GROUP_ARN_2"'","containerName":"'"$CONTAINER_NAME"'","containerPort":'"$CONTAINER_PORT"'}]' \        
+            --load-balancers '[{"targetGroupArn":"'"$TARGET_GROUP_ARN_1"'","containerName":"'"$CONTAINER_NAME"'","containerPort":'"$CONTAINER_PORT_1"'},{"targetGroupArn":"'"$TARGET_GROUP_ARN_2"'","containerName":"'"$CONTAINER_NAME"'","containerPort":'"$CONTAINER_PORT_2"'}]' \        
         # Wait for service to stabilize
           aws ecs wait services-stable \
             --cluster $CLUSTER_NAME \
