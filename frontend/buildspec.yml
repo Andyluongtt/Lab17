@@ -45,4 +45,4 @@ phases:
       - aws ecs register-task-definition --region ${AWS_REGION} --cli-input-json "$NEW_TASK_DEFINITION"
       
       # Update the ECS service to use the new task definition
-      #- aws ecs update-service --region ${AWS_REGION} --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME_FE} --task-definition ${TASK_NAME_FE} --force-new-deployment
+      - aws ecs update-service --region ${AWS_REGION} --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME_FE} --task-definition ${TASK_NAME_FE} --force-new-deployment
