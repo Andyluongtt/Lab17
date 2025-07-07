@@ -55,27 +55,29 @@ phases:
       # Update service with new task definition
       - NEW_TASK_DEF_ARN=$(echo $NEW_REVISION | jq -r '.taskDefinition.taskDefinitionArn')
       - |
-        cat > load_balancers.json << EOF
-        [
-          {
-            "targetGroupArn": "${TARGET_GROUP_ARN_1}",
-            "containerName": "${CONTAINER_NAME}",
-            "containerPort": ${CONTAINER_PORT_1}
-          },
-          {
-            "targetGroupArn": "${TARGET_GROUP_ARN_2}",
-            "containerName": "${CONTAINER_NAME}",
-            "containerPort": ${CONTAINER_PORT_2}
-          }
-         ]
-         EOF
-      # Debug: Log the JSON file
-      - cat load_balancers.json
-      - |
         if ! aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --region $AWS_REGION --query 'services[?status==`ACTIVE`]' --output text | grep -q "ACTIVE"; then
           echo "Service does not exist, creating new service..."
-        
-        # Create new ECS service
+          # Create JSON file for load balancers using jq to avoid heredoc issues
+          - jq -n --arg tg1 "$TARGET_GROUP_ARN_1" --arg tg2 "$TARGET_GROUP_ARN_2" --arg cn "$CONTAINER_NAME" --argjson cp1 "$CONTAINER_PORT_1" --argjson cp2 "$CONTAINER_PORT_2" '[
+            {
+              "targetGroupArn": $tg1,
+              "containerName": $cn,
+              "containerPort": $cp1
+            },
+            {
+              "targetGroupArn": $tg2,
+              "containerName": $cn,
+              "containerPort": $cp2
+            }
+          ]' > load_balancers.json
+          # Debug: Log the JSON file
+          - cat load_balancers.json
+          # Validate JSON file
+          - jq . load_balancers.json || { echo "Invalid JSON in load_balancers.json"; exit 1; }
+          # Create new ECS service
+      # Debug: Log the JSON file
+      - cat load_balancers.json 
+      # Create new ECS service
           aws ecs create-service \
             --cluster $CLUSTER_NAME \
             --service-name $SERVICE_NAME \
