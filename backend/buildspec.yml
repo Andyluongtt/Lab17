@@ -55,25 +55,26 @@ phases:
       # Update service with new task definition
       - NEW_TASK_DEF_ARN=$(echo $NEW_REVISION | jq -r '.taskDefinition.taskDefinitionArn')
       - |
-        if ! aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --region $AWS_REGION --query 'services[?status==`ACTIVE`]' --output text | grep -q "ACTIVE"; then
-          echo "Service does not exist, creating new service..."
-        - |
-            cat << EOF > load_balancers.json
-            [
-              {
-                "targetGroupArn": "$TARGET_GROUP_ARN_1",
-                "containerName": "$CONTAINER_NAME",
-                "containerPort": $CONTAINER_PORT_1
-              },
-              {
-                "targetGroupArn": "$TARGET_GROUP_ARN_2",
-                "containerName": "$CONTAINER_NAME",
-                "containerPort": $CONTAINER_PORT_2
-              }
-            ]
-            EOF
+        cat << EOF > load_balancers.json
+         [
+           {
+             "targetGroupArn": "$TARGET_GROUP_ARN_1",
+             "containerName": "$CONTAINER_NAME",
+             "containerPort": $CONTAINER_PORT_1
+           },
+           {
+             "targetGroupArn": "$TARGET_GROUP_ARN_2",
+             "containerName": "$CONTAINER_NAME",
+             "containerPort": $CONTAINER_PORT_2
+           }
+          ]
+          EOF
           # Debug: Log the JSON file
           - cat load_balancers.json
+      - |
+        if ! aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --region $AWS_REGION --query 'services[?status==`ACTIVE`]' --output text | grep -q "ACTIVE"; then
+          echo "Service does not exist, creating new service..."
+        
         # Create new ECS service
           aws ecs create-service \
             --cluster $CLUSTER_NAME \
@@ -84,7 +85,7 @@ phases:
             --deployment-controller type=CODE_DEPLOY \
             --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_IDS],securityGroups=[$SECURITY_GROUP_IDS],assignPublicIp=DISABLED}" \
             --region $AWS_REGION \
-            --load-balancers file://load_balancers.json \        
+            --load-balancers file://load_balancers.json         
           # Wait for service to stabilize
           aws ecs wait services-stable \
             --cluster $CLUSTER_NAME \
