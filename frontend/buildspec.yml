@@ -9,24 +9,6 @@ env:
 phases:
   pre_build:
     commands:
-      # Debugging: Print current user and group memberships
-      - echo "Current user: $(whoami)"
-      - echo "Groups: $(groups)"
-
-      # Try starting Docker Daemon more robustly
-      # Ensure the Docker group exists and user is in it (CodeBuild typically handles this for privilegedMode)
-      - if ! getent group docker > /dev/null; then sudo groupadd docker; fi
-      - sudo usermod -aG docker $(whoami)
-      - newgrp docker # Apply new group membership to current shell (important!)
-
-      # Explicitly remove old Docker socket if it exists (cleanup)
-      - sudo rm -f /var/run/docker.sock
-
-      # Start the Docker daemon in the background with logging to a file
-      # Use a longer timeout for dockerd to start
-      - echo "Starting Docker daemon..."
-      - nohup dockerd > /tmp/dockerd.log 2>&1 &
-
       # Wait for Docker daemon to be fully ready (increased timeout and more verbose check)
       - timeout 60 sh -c 'until docker info &>/dev/null; do echo "Waiting for Docker daemon..."; sleep 2; done'
       - echo "Docker daemon started successfully!"
