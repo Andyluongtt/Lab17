@@ -94,7 +94,7 @@ phases:
           echo "Service already exists, proceeding with deployment..."
         fi
 
-      - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --region $AWS_REGION --force-new-deployment
+      #- aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --region $AWS_REGION --force-new-deployment
 
 
       # Extract required information for AppSpec
