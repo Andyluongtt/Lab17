@@ -8,7 +8,7 @@ env:
     SECURITY_GROUP_IDS: "sg-02b0bccf46eb34243"
     SUBNET_IDS: "subnet-05f594698be3b3d52"
     CLUSTER_NAME: "VPC2-Cluster-Lab17"
-    SERVICE_NAME: "Lab17-Service2"    
+    SERVICE_NAME: "Lab17-Service3"    
     TASK_NAME_BE: "VPC2-Task-Backend-Lab17-03-withDBinfo-backendLab17-mapportv2:1"
     TASK_FAMILY: "VPC2-Task-Backend-Lab17-03-withDBinfo-backendLab17-mapportv2:1"
     ECR_IMAGE: "533267067091.dkr.ecr.ap-southeast-2.amazonaws.com/my-repo:latest"
@@ -80,7 +80,6 @@ phases:
           jq . load_balancers.json || { echo "Invalid JSON in load_balancers.json"; exit 1; }
           # Debug: Log the JSON file
           cat load_balancers.json 
-          # Create new ECS service
           # Create new ECS service
           aws ecs create-service \
             --cluster $CLUSTER_NAME \
