@@ -5,6 +5,7 @@ env:
     AWS_REGION: "ap-southeast-2"
     AWS_APPLICATION_NAME: "Lab17-App"
     AWS_DEPLOYMENT_GROUP_NAME: "Lab17-DeploymentGroup"
+    SERVICE_NAME: "Lab17-Service"    
 phases:
   pre_build:
     commands:
