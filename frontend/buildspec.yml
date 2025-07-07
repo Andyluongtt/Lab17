@@ -9,15 +9,15 @@ env:
   phases:
     pre_build:
       commands:
-        # Start the Docker daemon (important for docker commands)
-        - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
-        - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
         # Login to Amazon ECR
         - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com
         # Set the image tag using CodeBuild source version
         - IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION}
         # Set the full URI for the Docker image
         - IMAGE_URI=${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com/${CI_PROJECT_FE_NAME}:${IMAGE_TAG}
+        # Start the Docker daemon (important for docker commands)
+        - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
+        - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
     build:
       commands:
         # Navigate to frontend directory and build Docker image
